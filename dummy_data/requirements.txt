@@ -1,0 +1,11 @@
+certifi==2024.6.2
+charset-normalizer==3.3.2
+click==8.1.7
+idna==3.7
+mercantile==1.2.1
+noise==1.2.2
+numpy==2.0.0
+psycopg2-binary==2.9.9
+requests==2.32.3
+shapely==2.0.4
+urllib3==2.2.2
