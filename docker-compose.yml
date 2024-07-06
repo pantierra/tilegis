@@ -1,0 +1,109 @@
+version: '3.3'
+networks:
+  web:
+    driver: "bridge"
+
+services:
+  tileserver:
+    image: pramsey/pg_tileserv
+    container_name: tileserver
+    env_file:
+      - tileserver.env
+    depends_on:
+      - database
+    ports:
+      - 7800:7800
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tileserver.rule=Host(`tiles.tilegis.centroi.de`)"
+      - "traefik.http.middlewares.serviceheaders.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.routers.tileserver.middlewares=serviceheaders"
+      - "traefik.http.routers.tileserver.entrypoints=websecure"
+      - "traefik.http.routers.tileserver.tls=true"
+      - "traefik.http.routers.tileserver.tls.certresolver=letsencrypt"
+      - "traefik.http.services.tileserver.loadbalancer.server.port=7800"
+    networks:
+      - web
+
+  database:
+    image: postgis/postgis:16-3.4
+    container_name: database
+    volumes:
+      - ./dummy_data:/work
+      - database:/var/lib/postgresql/data
+    env_file:
+      - database.env
+    networks:
+      - web
+
+  website:
+    image: nginx
+    depends_on:
+      - database
+      - tileserver
+    volumes:
+      - ./website:/usr/share/nginx/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.website.rule=Host(`tilegis.centroi.de`)"
+      - "traefik.http.middlewares.serviceheaders.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.routers.website.middlewares=serviceheaders"
+      - "traefik.http.routers.website.entrypoints=websecure"
+      - "traefik.http.routers.website.tls=true"
+      - "traefik.http.routers.website.tls.certresolver=letsencrypt"
+      - "traefik.http.services.website.loadbalancer.server.port=80"
+    networks:
+      - web
+
+  # Reverse proxy: traefik
+  reverseproxy:
+    image: "traefik:v2.11.6"
+    restart: "unless-stopped"
+    environment:
+      - ADMIN_EMAIL=root@consciente.de
+      - SERVER_URL=tilegis.centroi.de
+    command:   
+      # General stuff
+      # - "--log.level=DEBUG"
+      - "--api.dashboard=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # Connection with docker
+      - "--providers.docker=true"
+      - "--providers.docker.watch=true"
+      - "--providers.docker.useBindPortIP=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      # Certificates
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ADMIN_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=cert/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data/cert:/cert/
+    labels:
+      - "traefik.enable=true"
+      # Dashboard
+      - "traefik.http.routers.traefik.rule=(Host(`$SERVER_URL`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`)))"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.middlewares=dashboardauth"
+      # Basic authentification
+      - "traefik.http.middlewares.dashboardauth.basicauth.users=admin:$$apr1$$8m/JfENE$$1Z1fHLRaE0n90mHtDxxCb0"
+      - "traefik.http.middlewares.monitorauth.basicauth.users=monitor:$$apr1$$tQ6b4PBn$$ITjucR.Nz7KIhVzGSHJYu1"
+      # HTTPS Redirect
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https@docker"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    networks:
+      - "web"
+
+volumes:
+  database:
