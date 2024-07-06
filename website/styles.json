@@ -1,0 +1,144 @@
+{
+    "version": 8,
+    "name": "Tiles",
+    "metadata": {
+        "maputnik:renderer": "mbgljs"
+    },
+    "center": [
+        26.55,
+        58.4
+    ],
+    "zoom": 11,
+    "sources": {
+        "tiles": {
+            "type": "vector",
+            "url": "http://localhost/tilejson.json"
+        },
+        "carto-light": {
+            "type": "raster",
+            "tiles": [
+                "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+                "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+                "https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+                "https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"
+            ]
+        }
+    },
+    "sprite": "",
+    "glyphs": "https://orangemug.github.io/font-glyphs/glyphs/{fontstack}/{range}.pbf",
+    "layers": [
+        {
+            "id": "background",
+            "type": "raster",
+            "source": "carto-light",
+            "paint": {}
+        },
+        {
+            "id": "very-low",
+            "type": "fill",
+            "source": "tiles",
+            "source-layer": "tiles",
+            "filter": [
+                "all",
+                [
+                    ">=",
+                    "value",
+                    0.1
+                ]
+            ],
+            "paint": {
+                "fill-color": "rgba(0, 255, 0, 1)",
+                "fill-outline-color": "rgba(0, 200, 0, 1)",
+                "fill-opacity": 0.2
+            }
+        },
+        {
+            "id": "low",
+            "type": "fill",
+            "source": "tiles",
+            "source-layer": "tiles",
+            "filter": [
+                "all",
+                [
+                    ">=",
+                    "value",
+                    0.3
+                ]
+            ],
+            "paint": {
+                "fill-color": "rgba(127, 255, 0, 1)",
+                "fill-outline-color": "rgba(102, 200, 0, 1)",
+                "fill-opacity": 0.2
+            }
+        },
+        {
+            "id": "middle",
+            "type": "fill",
+            "source": "tiles",
+            "source-layer": "tiles",
+            "filter": [
+                "all",
+                [
+                    ">=",
+                    "value",
+                    0.5
+                ]
+            ],
+            "paint": {
+                "fill-color": "rgba(255, 255, 0, 1)",
+                "fill-outline-color": "rgba(200, 200, 0, 1)",
+                "fill-opacity": 0.2
+            }
+        },
+        {
+            "id": "high",
+            "type": "fill",
+            "source": "tiles",
+            "source-layer": "tiles",
+            "filter": [
+                "all",
+                [
+                    ">=",
+                    "value",
+                    0.7
+                ]
+            ],
+            "paint": {
+                "fill-color": "rgba(255, 127, 0, 1)",
+                "fill-outline-color": "rgba(200, 102, 0, 1)",
+                "fill-opacity": 0.2
+            }
+        },
+        {
+            "id": "very-high",
+            "type": "fill",
+            "source": "tiles",
+            "source-layer": "tiles",
+            "filter": [
+                "all",
+                [
+                    ">=",
+                    "value",
+                    0.9
+                ]
+            ],
+            "paint": {
+                "fill-color": "rgba(255, 0, 0, 1)",
+                "fill-outline-color": "rgba(200, 0, 0, 1)",
+                "fill-opacity": 0.2
+            }
+        },
+        {
+            "id": "tiles-line",
+            "type": "line",
+            "source": "tiles",
+            "source-layer": "tiles",
+            "paint": {
+                "line-opacity": 0.2,
+                "line-color": "rgba(98, 91, 91, 1)",
+                "line-width": 1
+            }
+        }
+    ],
+    "id": "obm_tiles"
+}

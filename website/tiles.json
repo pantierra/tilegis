@@ -1,0 +1,34 @@
+{
+    "tilejson": "2.2.0",
+    "name": "Tiles",
+    "version": "1.0.0",
+    "scheme": "xyz",
+    "format": "pbf",
+    "bounds": [
+        -180,
+        -85.0511,
+        180,
+        85.0511
+    ],
+    "center": [
+        58.3750,
+        26.7325,
+        13
+    ],
+    "maxzoom": 14,
+    "minzoom": 0,
+    "tiles": [
+        "https://tiles.tilegis.centroi.de/public.generate_obm_vector_tiles/{z}/{x}/{y}.pbf"
+    ],
+    "vector_layers": [
+        {
+            "id": "tiles",
+            "description": "",
+            "fields": {
+                "quadkey": "String"
+            },
+            "maxzoom": 14,
+            "minzoom": 12
+        }
+    ]
+}

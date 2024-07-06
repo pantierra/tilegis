@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Tile-based GIS</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <script src='https://unpkg.com/maplibre-gl/dist/maplibre-gl.js'></script>
+  <link href='https://unpkg.com/maplibre-gl/dist/maplibre-gl.css' rel='stylesheet' />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script>
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'http://localhost/styles.json'
+    });
+
+    map.on('load', () => {
+      console.log('Map loaded');
+      console.log('Map style:', map.getStyle());
+    });
+
+    map.on('error', (e) => {
+      console.error('Map error:', e);
+    });
+
+    map.addControl(new maplibregl.NavigationControl());
+  </script>
+</body>
+
+</html>
